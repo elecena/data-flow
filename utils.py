@@ -79,6 +79,11 @@ def generalize_sql(sql):
     # e.g. /* CategoryDataService::getMostVisited N.N.N.N */
     sql = remove_comments_from_sql(sql)
 
+    sql = sql.replace('SNIPPETS(', 'SNIPPETS (')
+    kind = sql.split(' ')[0].upper()
+    if kind in ['UPDATE', 'CALL']:
+        sql = ' '.join(sql.split(' ')[:2])
+
     # handle LIKE statements
     sql = normalize_likes(sql)
 
@@ -101,5 +106,6 @@ def generalize_sql(sql):
     sql = re.sub(r'(N,)+', 'N..N', sql)
     sql = re.sub(r'(X,)+', 'X..X', sql)
     sql = re.sub(r'(i:N;)+', 'N..N', sql)
+    sql = re.sub(r'WHERE.*', 'WHERE', sql)
 
     return sql.strip()

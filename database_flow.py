@@ -27,7 +27,12 @@ def get_flow(period, limit):
             'php:{}'.format(row['@context']['method']),
         )
 
-    logs = map(_map_query, kibana.query_by_string('@context.rows: *', limit=limit))
+    logs = map(
+        _map_query,
+        kibana.query_by_string('@context.rows: *',
+                               fields=['@message', '@fields.database.name', '@context.method'],
+                               limit=limit)
+    )
     logs = [log for log in logs if log is not None]
 
     # print(list(logs))
@@ -68,7 +73,7 @@ def get_flow(period, limit):
 
 def main():
     logger = logging.getLogger(__name__)
-    graph = get_flow(period=7200, limit=5000)  # last two hours
+    graph = get_flow(period=7200, limit=10000)  # last two hours
 
     logger.info('Saving to TSV...')
     with open('output/database.tsv', 'wt') as fp:
